@@ -1,0 +1,46 @@
+# app.py
+import streamlit as st
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+st.set_page_config(page_title="My Interactive Dashboard", layout="wide")
+st.title("My Interactive Dashboard")
+
+# --- Sample dataset ---
+data = pd.DataFrame({
+    'Product': ['X','Y','Z','X','Y','Z','X','Y','Z'],
+    'Region': ['North','North','North','South','South','South','East','East','East'],
+    'Sales': [150, 200, 300, 250, 180, 220, 200, 210, 230],
+    'Profit': [50, 60, 70, 80, 55, 65, 60, 70, 75]
+})
+
+# Show raw data
+st.subheader("Raw Data")
+st.dataframe(data)
+
+# --- Sidebar filters ---
+st.sidebar.header("Filter Options")
+product_filter = st.sidebar.multiselect("Select Product(s)", options=data['Product'].unique(), default=data['Product'].unique())
+region_filter = st.sidebar.multiselect("Select Region(s)", options=data['Region'].unique(), default=data['Region'].unique())
+
+# Apply filters
+filtered_data = data[(data['Product'].isin(product_filter)) & (data['Region'].isin(region_filter))]
+
+st.subheader("Filtered Data")
+st.dataframe(filtered_data)
+
+# --- Charts ---
+st.subheader("Sales by Product")
+sales_chart = filtered_data.groupby('Product')['Sales'].sum().reset_index()
+fig1, ax1 = plt.subplots()
+ax1.bar(sales_chart['Product'], sales_chart['Sales'], color='skyblue')
+ax1.set_ylabel("Total Sales")
+st.pyplot(fig1)
+
+st.subheader("Profit by Region")
+profit_chart = filtered_data.groupby('Region')['Profit'].sum().reset_index()
+fig2, ax2 = plt.subplots()
+ax2.bar(profit_chart['Region'], profit_chart['Profit'], color='lightgreen')
+ax2.set_ylabel("Total Profit")
+st.pyplot(fig2)
